@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v1
+        with:
+          cmake-version: '3.20.0'
+
+      - name: Set up Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Configure CMake
+        run: cmake -S . -B build -G Ninja
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
