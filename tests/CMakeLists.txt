@@ -2,11 +2,17 @@ enable_testing()
 
 include(FetchContent)
 
+# Set CMake policy CMP0135 to NEW, to ensure that files extracted from downloaded archives
+# have their timestamps set to the time of extraction, not the original archive timestamps
+# This avoids potential rebuild issues and silences related CMake warnings.
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 # Download GoogleTest
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
 # Disable unnecessary parts
