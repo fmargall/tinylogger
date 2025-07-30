@@ -8,6 +8,6 @@ int main(int argc, char** argv) {
 }
 
 TEST(TinyLoggerTest, LogsToCout) {
-	logger.log("This is a test log message.");
+	logger.log(LogLevel::TRACE, "This is a test log message. ", 1, 3.0, std::string("yes"), " I am");
 	EXPECT_TRUE(true);
 }
