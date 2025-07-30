@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iostream>
+#include <sstream>
+
 enum class LogLevel {
 	OFF      = 0,
 	CRITICAL = 1,
@@ -15,8 +18,11 @@ struct Logger {
 public:
 	Logger(LogLevel level) : level(level) {}
 
-	void log(const char* message) {
-		std::cout << message << std::endl;
+	template <typename... Args>
+	void log(LogLevel logLevel, Args&&... args) const {
+		std::ostringstream streamOutput;
+		(streamOutput << ... << std::forward<Args>(args));
+		std::cout << streamOutput.str() << std::endl;
 	}
 
 	LogLevel level;
@@ -25,5 +31,4 @@ private:
 
 };
 
-// Inline global logger instance (needs C++17 or later)
 inline Logger logger(LogLevel::TRACE);
