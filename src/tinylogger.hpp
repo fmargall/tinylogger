@@ -49,6 +49,18 @@ enum class LogLevel {
 
 struct Logger {
 public:
+    /*
+	 * @brief Constructs a Logger instance, with the specified log level.
+     * 
+	 * @param logLevel The initial log level for the logger. See LogLevel
+	 *                 enum class for available log levels.
+     * 
+	 * @note /!\ Caution: This constructor will be called only once, when
+     *           all the header is included in the code, thanks to inline
+     *           Logger instance, declared at the end of this struct. 
+	 *           The user, once that the header is included does not have
+                 to declare another instance, and can directly use macros
+     */
     Logger(LogLevel logLevel) : logLevel_(logLevel) {
 		// Initialize the current time and last log time
         lastLogTime_ = std::chrono::system_clock::now();
