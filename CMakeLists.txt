@@ -10,5 +10,3 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add subdirectories
 add_subdirectory(tests)
-
-add_executable(tinylogger src/main.cpp)
