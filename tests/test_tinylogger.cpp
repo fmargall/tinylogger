@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "tinylogger.hpp"
+#include <tinylogger/tinylogger.hpp>
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
