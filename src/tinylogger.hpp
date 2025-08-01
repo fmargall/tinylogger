@@ -212,6 +212,7 @@ public:
         if (logLevel > MAX_LOG_LEVEL_AT_COMPILATION) {
 			logERROR("Invalid log level: ", static_cast<int>(logLevel), ". "
                      "Maximum allowed is: ", MAX_LOG_LEVEL_AT_COMPILATION);
+            return;
         }
         #endif
 
