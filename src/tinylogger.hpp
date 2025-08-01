@@ -14,6 +14,46 @@
  */
 
 
+/* @brief Controls function inlining behavior for TinyLogger.
+ * 
+ * TinyLogger defines a macro IS_TINYLOGGER_INLINED (that can be set to 0 or 1)
+ * that controls whether the logging functions are inlined or not. Be careful :
+ * it is strongly recommended to read the following documentation before trying
+ * any modification.
+ * 
+ * Supported compilers:
+ *  - MSVC     : ('__forceinline')
+ *  - GCC/Clang: ('inline __attribute__((always_inline))')
+ *  - Others   : ('inline') Default value, which may not enforce inlining.
+ * 
+ * ==========    When should you set IS_TINYLOGGER_INLINED to 1 ?    ==========
+ * 
+ * This will strongly depend of the use case of the logger in your own program.
+ * Before setting this value to 1, you should always profile your code, chosing
+ * a representative use case, and check if the inlining is really needed.
+ * 
+ */
+#ifndef    IS_TINYLOGGER_INLINED
+#   define IS_TINYLOGGER_INLINED 0
+#endif
+
+#if (!IS_TINYLOGGER_INLINED)
+    // Inlining is not forced, and will be selected by the compiler.
+#   define INLINING_TINYLOGGER inline
+#else
+#   if   defined(_MSC_VER)
+        // Use __forceinline for MSVC to enforce the inlining for all functions
+#       define INLINING_TINYLOGGER __forceinline
+#   elif defined(__GNUC__) || defined(__clang__)
+        // Use inline __attribute__((always_inline)) for GCC / Clang compilers.
+#       define INLINING_TINYLOGGER inline __attribute__((always_inline))
+#   else
+        // Inlining is asked for non-supported compilers, may not be enforced.
+#       define INLINING_TINYLOGGER inline
+#   endif
+#endif
+
+
 #ifndef    LOG_FUNCTION_NAME
 #   define LOG_FUNCTION_NAME 1
 #endif
@@ -73,8 +113,24 @@ public:
         #endif        // Both are thread-safe while using ctime only is not
     }
 
+    /*
+	 * @brief Concatenates arguments, and logs at the specified level.
+     * 
+	 * This function will be the main entry point for some macros when
+	 * maximum log level is defined at compilation time. For the other
+	 * case, the macros will call the specific log functions directly.
+     *
+	 * @tparam Args (variadic): Any arguments, of any streamable type.
+     * 
+	 * @param logLevel Log level at which the message should be logged
+	 * @param args    (variadic): Any arguments of any streamable type
+     * 
+     * @note It is strongly recommended to use the macros, rather than
+	 *       this function directly. The macros will optimise the code
+	 *       performance and may reduce the binary size.
+     */
     template <typename... Args>
-    void log(LogLevel logLevel, Args&&... args) const {
+    INLINING_TINYLOGGER void log(LogLevel logLevel, Args&&... args) const {
         if (logLevel <= logLevel_) {
             switch (logLevel) {
                 case LogLevel::TRACE:
@@ -98,49 +154,49 @@ public:
     }
 
     template <typename... Args>
-    void logTRACE(Args&&... args) const {
+    INLINING_TINYLOGGER void logTRACE(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
         std::clog << "[TRACE]    " << formatMessage(std::forward<Args>(args)...) << std::endl;
     }
 
     template <typename... Args>
-    void logDEBUG(Args&&... args) const {
+    INLINING_TINYLOGGER void logDEBUG(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
         std::clog << "[DEBUG]    " << formatMessage(std::forward<Args>(args)...) << std::endl;
     }
 
     template <typename... Args>
-    void logVERBOSE(Args&&... args) const {
+    INLINING_TINYLOGGER void logVERBOSE(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
         std::clog << "[VERBOSE]  " << formatMessage(std::forward<Args>(args)...) << std::endl;
     }
 
     template <typename... Args>
-    void logINFO(Args&&... args) const {
+    INLINING_TINYLOGGER void logINFO(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
         std::cout <<"[INFO]     " << formatMessage(std::forward<Args>(args)...) << std::endl;
     }
 
     template <typename... Args>
-    void logWARNING(Args&&... args) const {
+    INLINING_TINYLOGGER void logWARNING(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
         std::clog << "[WARNING]  " << formatMessage(std::forward<Args>(args)...) << std::endl;
     }
 
     template <typename... Args>
-    void logERROR(Args&&... args) const {
+    INLINING_TINYLOGGER void logERROR(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
         std::cerr << "[ERROR]    " << formatMessage(std::forward<Args>(args)...) << std::endl;
     }
 
     template <typename... Args>
-    [[noreturn]] void logCRITICAL(Args&&... args) const {
+    [[noreturn]] INLINING_TINYLOGGER void logCRITICAL(Args&&... args) const {
         // Locks mutex during log for thread-safety
         std::lock_guard<std::mutex> guard(logMutex_);
 		std::cerr << "[CRITICAL] " << formatMessage(std::forward<Args>(args)...) << std::endl;
@@ -229,7 +285,7 @@ public:
 
 private:
     template <typename... Args>
-    std::string formatMessage(Args&&... args) const {
+    INLINING_TINYLOGGER std::string formatMessage(Args&&... args) const {
 
         // Computing and preparing the time string
         currentTime_ = std::chrono::system_clock::now(); // Used to compute elapsed time since last log
