@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME}_tests ${TEST_SOURCES})
 
 # Include directories
 target_include_directories(${PROJECT_NAME}_tests PRIVATE
-                           ${CMAKE_SOURCE_DIR}/src)
+                           ${CMAKE_SOURCE_DIR}/include)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE
