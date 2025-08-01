@@ -55,14 +55,17 @@
 
 
 #ifndef    LOG_FUNCTION_NAME
+	// Can be set to 1 to include function name in which log function is called
 #   define LOG_FUNCTION_NAME 1
 #endif
 
 #ifndef    LOG_FILE_NAME
+	// Can be set to 1 to include file name in which log function is called
 #   define LOG_FILE_NAME 0
 #endif
 
 #ifndef    LOG_LINE_NUMBER
+	// Can be set to 1 to include line number in which log function is called
 #   define LOG_LINE_NUMBER 0
 #endif
 
